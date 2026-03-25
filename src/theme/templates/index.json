@@ -1,0 +1,68 @@
+{
+	"sections": {
+		"hero": {
+			"type": "hero",
+			"settings": {}
+		},
+		"rich-text": {
+			"type": "rich-text",
+			"settings": {
+				"btn_label": "Learn More",
+				"btn_url": "/learn-more"
+			}
+		},
+		"image-text": {
+			"type": "image-text",
+			"settings": {}
+		},
+		"cards-grid": {
+			"type": "cards-grid",
+			"blocks": {
+				"card-1": { "type": "card", "settings": {} },
+				"card-2": { "type": "card", "settings": {} },
+				"card-3": { "type": "card", "settings": {} }
+			},
+			"block_order": ["card-1", "card-2", "card-3"],
+			"settings": {}
+		},
+		"related-products": {
+			"type": "related-products",
+			"settings": {
+				"heading": "Products you may like",
+				"columns": "grid-cols-4",
+				"limit": 8
+			}
+		},
+		"testimonials": {
+			"type": "testimonials",
+			"blocks": {
+				"testi-1": { "type": "testimonial", "settings": {} },
+				"testi-2": { "type": "testimonial", "settings": {} },
+				"testi-3": { "type": "testimonial", "settings": {} }
+			},
+			"block_order": ["testi-1", "testi-2", "testi-3"],
+			"settings": {}
+		},
+		"rich-text-2": {
+      "type": "rich-text",
+      "settings": {
+        "heading": "Contact us",
+        "text": "We'd love to hear from you.",
+      }
+    },
+		"contact-form": {
+			"type": "contact-form",
+			"settings": {}
+		}
+	},
+	"order": [
+		"hero",
+		"rich-text",
+		"image-text",
+		"cards-grid",
+		"testimonials",
+		"related-products",
+		"rich-text-2",
+		"contact-form",
+	]
+}

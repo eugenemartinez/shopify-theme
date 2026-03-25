@@ -1,0 +1,249 @@
+<section
+  id="main-search"
+  class="full-width w-full py-12"
+  style="background: var(--background);"
+>
+  <div
+    class="px-6"
+    style="max-width: var(--page-width); margin-inline: auto;"
+  >
+    {%- # Search header -%}
+    <div
+      class="mb-12 border-b pb-8"
+      style="border-color: var(--border);"
+      data-gsap="fade-up"
+      data-scroll="true"
+    >
+      <h1
+        class="text-foreground mb-6 text-4xl font-bold tracking-tight md:text-5xl"
+        style="font-family: var(--font-headline);"
+      >
+        Search
+      </h1>
+
+      {%- # Search input -%}
+      {%- form 'search' -%}
+        <div class="flex gap-2" style="max-width: 560px;">
+          <div class="relative flex-1">
+            <input
+              type="search"
+              name="q"
+              value="{{ search.terms | escape }}"
+              placeholder="Search products..."
+              class="text-foreground placeholder:text-foreground/30 w-full py-3 pr-4 pl-10 text-sm transition-all duration-200 outline-none"
+              style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);"
+              data-gsap="focus-glow"
+              autofocus
+            >
+            <svg
+              class="text-foreground/30 absolute top-1/2 left-3 -translate-y-1/2"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </div>
+          <button
+            type="submit"
+            class="inline-flex items-center gap-2 px-5 py-3 text-sm font-semibold transition-all duration-200 hover:opacity-80"
+            style="background: var(--primary); color: var(--primary-foreground); border-radius: var(--radius);"
+            data-gsap="hover-lift"
+          >
+            Search
+          </button>
+        </div>
+      {%- endform -%}
+    </div>
+
+    {%- # Results -%}
+    {%- if search.performed -%}
+      {%- if search.results_count > 0 -%}
+        <div
+          class="mb-8"
+          data-gsap="fade-up"
+          data-scroll="true"
+        >
+          <p class="text-foreground/40 text-sm">
+            {{ search.results_count }}
+            {{ search.results_count | pluralize: 'result', 'results' }} for
+            <span class="text-foreground font-medium">&ldquo;{{ search.terms }}&rdquo;</span>
+          </p>
+        </div>
+
+        <div
+          class="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4"
+          data-gsap="stagger-fade-up"
+          data-scroll="true"
+          data-stagger="0.08"
+        >
+          {%- for item in search.results -%}
+            {%- if item.object_type == 'product' -%}
+              <a
+                href="{{ item.url }}"
+                class="flex flex-col gap-3"
+                data-gsap="hover-card"
+              >
+                <div
+                  class="overflow-hidden"
+                  style="background: var(--secondary); border-radius: var(--radius);"
+                >
+                  {%- if item.featured_image -%}
+                    <img
+                      src="{{ item.featured_image | image_url: width: 600 }}"
+                      alt="{{ item.featured_image.alt | escape }}"
+                      class="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                      style="aspect-ratio: 3/4;"
+                      loading="lazy"
+                    >
+                  {%- else -%}
+                    <img
+                      src="{{ 'placeholder.png' | asset_url }}"
+                      alt="{{ item.title }}"
+                      class="h-full w-full object-cover"
+                      style="aspect-ratio: 3/4;"
+                    >
+                  {%- endif -%}
+                </div>
+                <div class="flex flex-col gap-1 px-1">
+                  <h3
+                    class="text-foreground text-sm font-medium"
+                    style="font-family: var(--font-headline);"
+                  >
+                    {{ item.title }}
+                  </h3>
+                  <span class="text-foreground text-sm font-semibold">
+                    {{ item.price | money }}
+                  </span>
+                </div>
+              </a>
+
+            {%- elsif item.object_type == 'article' -%}
+              <a
+                href="{{ item.url }}"
+                class="flex flex-col gap-3"
+                data-gsap="hover-card"
+              >
+                <div
+                  class="overflow-hidden"
+                  style="background: var(--secondary); border-radius: var(--radius);"
+                >
+                  {%- if item.image -%}
+                    <img
+                      src="{{ item.image | image_url: width: 600 }}"
+                      alt="{{ item.image.alt | escape }}"
+                      class="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                      style="aspect-ratio: 3/4;"
+                      loading="lazy"
+                    >
+                  {%- else -%}
+                    <div
+                      class="flex items-center justify-center"
+                      style="aspect-ratio: 3/4; background: var(--accent);"
+                    >
+                      <svg
+                        width="32"
+                        height="32"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1"
+                        class="text-foreground/20"
+                      >
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                      </svg>
+                    </div>
+                  {%- endif -%}
+                </div>
+                <div class="flex flex-col gap-1 px-1">
+                  <p class="text-foreground/40 text-xs tracking-widest uppercase">Article</p>
+                  <h3
+                    class="text-foreground text-sm font-medium"
+                    style="font-family: var(--font-headline);"
+                  >
+                    {{ item.title }}
+                  </h3>
+                </div>
+              </a>
+
+            {%- elsif item.object_type == 'page' -%}
+              <a
+                href="{{ item.url }}"
+                class="flex flex-col gap-4 p-6"
+                style="background: var(--card); border-radius: var(--radius); border: 1px solid var(--border);"
+                data-gsap="hover-card"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  class="text-foreground/30"
+                >
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                </svg>
+                <div class="flex flex-col gap-1">
+                  <p class="text-foreground/40 text-xs tracking-widest uppercase">Page</p>
+                  <h3
+                    class="text-foreground text-sm font-medium"
+                    style="font-family: var(--font-headline);"
+                  >
+                    {{ item.title }}
+                  </h3>
+                </div>
+              </a>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+
+      {%- else -%}
+        <div
+          class="flex flex-col items-center justify-center gap-4 py-32 text-center"
+          data-gsap="fade-up"
+          data-scroll="true"
+        >
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1"
+            class="text-foreground/20"
+          >
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <h2
+            class="text-foreground text-2xl font-bold"
+            style="font-family: var(--font-headline);"
+          >
+            No results found
+          </h2>
+          <p class="text-foreground/40 text-sm">Try a different search term or browse our products.</p>
+          <a
+            href="/collections/all"
+            class="mt-4 inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold transition-all duration-200 hover:opacity-80"
+            style="background: var(--primary); color: var(--primary-foreground); border-radius: var(--radius);"
+            data-gsap="hover-lift"
+          >
+            Browse All Products
+          </a>
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Search",
+  "tag": "section",
+  "class": "site-search-section",
+  "settings": []
+}
+{% endschema %}

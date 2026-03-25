@@ -1,0 +1,249 @@
+{%- if section.settings.bg == 'alt' -%}
+  {%- assign section_bg = 'var(--secondary)' -%}
+{%- else -%}
+  {%- assign section_bg = 'var(--background)' -%}
+{%- endif -%}
+
+<section
+  id="testimonials-{{ section.id }}"
+  class="full-width flex w-full flex-col items-center py-20"
+  style="background: {{ section_bg }};"
+>
+  <div class="flex w-full max-w-7xl flex-col items-center gap-12 px-6">
+    {%- # Section header -%}
+    {%- if section.settings.eyebrow != blank or section.settings.heading != blank -%}
+      <div class="flex flex-col items-center gap-4 text-center">
+        {%- if section.settings.eyebrow != blank -%}
+          <p
+            class="text-foreground/40 text-xs font-semibold tracking-widest uppercase"
+            data-gsap="fade-up"
+            data-scroll="true"
+            data-delay="0.1"
+          >
+            {{ section.settings.eyebrow }}
+          </p>
+        {%- endif -%}
+
+        {%- if section.settings.heading != blank -%}
+          <h2
+            class="text-foreground text-4xl leading-tight font-bold tracking-tight md:text-5xl"
+            style="font-family: var(--font-headline);"
+            data-gsap="fade-up"
+            data-scroll="true"
+            data-delay="0.2"
+          >
+            {{ section.settings.heading }}
+          </h2>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- # Testimonials grid -%}
+    <div
+      class="grid grid-cols-1 gap-8 md:grid-cols-2 {{ section.settings.columns }}"
+      data-gsap="stagger-fade-up"
+      data-scroll="true"
+      data-stagger="0.1"
+    >
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'testimonial' -%}
+            <div
+              class="bg-card border-border flex flex-col gap-6 rounded-[var(--radius)] border p-8"
+              data-gsap="hover-card"
+              {{ block.shopify_attributes }}
+            >
+              {%- # Stars -%}
+              {%- if block.settings.show_stars -%}
+                <div class="flex gap-1">
+                  {%- for i in (1..5) -%}
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      class="{% if i <= block.settings.rating %}text-foreground{% else %}text-foreground/20{% endif %}"
+                    >
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                  {%- endfor -%}
+                </div>
+              {%- endif -%}
+
+              {%- # Quote -%}
+              {%- if block.settings.quote != blank -%}
+                <blockquote class="text-foreground/70 flex-1 text-base leading-relaxed">
+                  &ldquo;{{ block.settings.quote }}&rdquo;
+                </blockquote>
+              {%- endif -%}
+
+              {%- # Author -%}
+              <div class="border-border flex items-center gap-4 border-t pt-6">
+                {%- if block.settings.avatar != blank -%}
+                  <img
+                    src="{{ block.settings.avatar | image_url: width: 80 }}"
+                    alt="{{ block.settings.name | escape }}"
+                    class="h-10 w-10 rounded-full object-cover"
+                    loading="lazy"
+                  >
+                {%- else -%}
+                  <div
+                    class="text-foreground/40 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold"
+                    style="background: var(--accent);"
+                  >
+                    {{- block.settings.name | slice: 0, 1 | upcase -}}
+                  </div>
+                {%- endif -%}
+                <div class="flex flex-col gap-0.5">
+                  {%- if block.settings.name != blank -%}
+                    <span class="text-foreground text-sm font-semibold">{{ block.settings.name }}</span>
+                  {%- endif -%}
+                  {%- if block.settings.role != blank -%}
+                    <span class="text-foreground/40 text-xs">{{ block.settings.role }}</span>
+                  {%- endif -%}
+                </div>
+              </div>
+            </div>
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+
+    {%- # Overall rating -%}
+    {%- if section.settings.show_overall -%}
+      <div
+        class="mt-16 flex flex-col items-center gap-3 text-center"
+        data-gsap="fade-up"
+        data-scroll="true"
+      >
+        <div class="flex gap-1">
+          {%- for i in (1..5) -%}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="text-foreground">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+          {%- endfor -%}
+        </div>
+        <p class="text-foreground/40 text-sm">
+          {{ section.settings.overall_text | default: 'Rated 5/5 by our customers' }}
+        </p>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Testimonials",
+  "tag": "section",
+  "class": "site-testimonials-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Header"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow Text",
+      "default": "Reviews"
+    },
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "Heading",
+      "default": "What our customers say."
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "columns",
+      "label": "Columns (Desktop)",
+      "options": [
+        { "value": "lg:grid-cols-2", "label": "2 Columns" },
+        { "value": "lg:grid-cols-3", "label": "3 Columns" }
+      ],
+      "default": "lg:grid-cols-3"
+    },
+    {
+      "type": "select",
+      "id": "bg",
+      "label": "Background",
+      "options": [
+        { "value": "default", "label": "Default" },
+        { "value": "alt", "label": "Alternate" }
+      ],
+      "default": "default"
+    },
+    {
+      "type": "header",
+      "content": "Overall Rating"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_overall",
+      "label": "Show Overall Rating",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "overall_text",
+      "label": "Overall Rating Text",
+      "default": "Rated 5/5 by our customers"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "quote",
+          "label": "Quote",
+          "default": "This is the best purchase I have made in years. The quality is outstanding and the service was exceptional."
+        },
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Customer Name",
+          "default": "Jane Smith"
+        },
+        {
+          "type": "text",
+          "id": "role",
+          "label": "Role or Location",
+          "default": "Verified Buyer"
+        },
+        {
+          "type": "image_picker",
+          "id": "avatar",
+          "label": "Avatar Image"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_stars",
+          "label": "Show Stars",
+          "default": true
+        },
+        {
+          "type": "range",
+          "id": "rating",
+          "label": "Star Rating",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 5
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Testimonials",
+      "blocks": [{ "type": "testimonial" }, { "type": "testimonial" }, { "type": "testimonial" }]
+    }
+  ]
+}
+{% endschema %}

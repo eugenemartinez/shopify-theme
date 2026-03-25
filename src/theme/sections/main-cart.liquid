@@ -1,0 +1,462 @@
+<section
+  id="main-cart"
+  class="full-width w-full py-20"
+  style="background: var(--background);"
+>
+  <div
+    class="px-6"
+    style="max-width: var(--page-width); margin-inline: auto;"
+  >
+    {%- # Page title -%}
+    <div
+      class="mb-12 border-b pb-8"
+      style="border-color: var(--border);"
+      data-gsap="fade-up"
+      data-scroll="true"
+    >
+      <h1
+        class="text-foreground text-4xl font-bold tracking-tight md:text-5xl"
+        style="font-family: var(--font-headline);"
+      >
+        {{ section.settings.title | default: 'Your Cart' }}
+      </h1>
+      {%- if cart.item_count > 0 -%}
+        <p class="text-foreground/40 mt-2 text-sm">
+          {{ cart.item_count }}
+          {{ cart.item_count | pluralize: 'item', 'items' }}
+        </p>
+      {%- endif -%}
+    </div>
+
+    {%- if cart.item_count > 0 -%}
+      {%- form 'cart', cart, id: 'cart-form' -%}
+        <div class="grid grid-cols-1 gap-12 py-6 lg:grid-cols-3">
+          {%- # Cart items -%}
+          <div class="flex flex-col gap-6 lg:col-span-2" id="cart-items">
+            {%- for item in cart.items -%}
+              <div
+                class="flex gap-4 border-b pb-6"
+                style="border-color: var(--border);"
+                id="cart-item-{{ item.key }}"
+                data-gsap="fade-up"
+                data-scroll="true"
+                data-delay="{{ forloop.index | times: 0.05 }}"
+              >
+                {%- # Item image -%}
+
+                <a
+                  href="{{ item.url }}"
+                  class="shrink-0 overflow-hidden"
+                  style="border-radius: var(--radius); background: var(--secondary); width: 96px; height: 96px;"
+                >
+                  {%- if item.image -%}
+                    <img
+                      src="{{ item.image | image_url: width: 200 }}"
+                      alt="{{ item.image.alt | escape }}"
+                      class="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                      loading="lazy"
+                    >
+                  {%- else -%}
+                    <img
+                      src="{{ 'placeholder.png' | asset_url }}"
+                      alt="{{ item.title }}"
+                      class="h-full w-full object-cover"
+                    >
+                  {%- endif -%}
+                </a>
+
+                {%- # Item details -%}
+                <div class="flex flex-1 flex-col gap-2">
+                  <div class="flex items-start justify-between gap-4">
+                    <div class="flex flex-col gap-1">
+                      <a
+                        href="{{ item.url }}"
+                        class="text-foreground text-sm font-semibold transition-opacity duration-200 hover:opacity-60"
+                        style="font-family: var(--font-headline);"
+                      >
+                        {{ item.product.title }}
+                      </a>
+                      {%- unless item.product.has_only_default_variant -%}
+                        <p class="text-foreground/40 text-xs">
+                          {{ item.variant.title }}
+                        </p>
+                      {%- endunless -%}
+                      {%- if item.selling_plan_allocation != null -%}
+                        <p class="text-foreground/40 text-xs">
+                          {{ item.selling_plan_allocation.selling_plan.name }}
+                        </p>
+                      {%- endif -%}
+                    </div>
+
+                    {%- # Line price -%}
+                    <div class="flex shrink-0 flex-col items-end gap-1">
+                      <span class="text-foreground text-sm font-semibold">
+                        {{ item.final_line_price | money }}
+                      </span>
+                      {%- if item.original_line_price != item.final_line_price -%}
+                        <span class="text-foreground/40 text-xs line-through">
+                          {{ item.original_line_price | money }}
+                        </span>
+                      {%- endif -%}
+                    </div>
+                  </div>
+
+                  {%- # Quantity + remove -%}
+                  <div class="flex items-center justify-between">
+                    <div
+                      class="flex items-center"
+                      style="border: 1px solid var(--border); border-radius: var(--radius);"
+                    >
+                      <button
+                        type="button"
+                        class="text-foreground/60 hover:text-foreground flex h-8 w-8 items-center justify-center transition-colors duration-200"
+                        onclick="changeQty('{{ item.key }}', -1)"
+                        aria-label="Decrease quantity"
+                      >
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                      </button>
+                      <span
+                        class="text-foreground flex h-8 w-8 items-center justify-center text-sm font-medium"
+                        style="border-left: 1px solid var(--border); border-right: 1px solid var(--border);"
+                        id="qty-{{ item.key }}"
+                      >
+                        {{ item.quantity }}
+                      </span>
+                      <button
+                        type="button"
+                        class="text-foreground/60 hover:text-foreground flex h-8 w-8 items-center justify-center transition-colors duration-200"
+                        onclick="changeQty('{{ item.key }}', 1)"
+                        aria-label="Increase quantity"
+                      >
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      class="text-foreground/30 hover:text-destructive text-xs transition-colors duration-200"
+                      onclick="removeCartItem('{{ item.key }}')"
+                      aria-label="Remove {{ item.product.title }}"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+            {%- endfor -%}
+          </div>
+
+          {%- # Order summary -%}
+          <div
+            class="flex h-fit flex-col gap-6 lg:sticky lg:top-24"
+            data-gsap="fade-left"
+            data-scroll="true"
+          >
+            <div
+              class="flex flex-col gap-4 p-6"
+              style="background: var(--card); border-radius: var(--radius); border: 1px solid var(--border);"
+            >
+              <h2
+                class="text-foreground text-base font-semibold"
+                style="font-family: var(--font-headline);"
+              >
+                Order Summary
+              </h2>
+
+              {%- # Subtotal -%}
+              <div class="flex flex-col gap-3 border-b pb-4" style="border-color: var(--border);">
+                <div class="flex items-center justify-between">
+                  <span class="text-foreground/60 text-sm">Subtotal</span>
+                  <span class="text-foreground text-sm font-medium" id="cart-subtotal">
+                    {{ cart.total_price | money }}
+                  </span>
+                </div>
+                {%- if cart.total_discounts > 0 -%}
+                  <div class="flex items-center justify-between">
+                    <span class="text-foreground/60 text-sm">Discounts</span>
+                    <span class="text-foreground text-sm font-medium"> -{{ cart.total_discounts | money }} </span>
+                  </div>
+                {%- endif -%}
+                <div class="flex items-center justify-between">
+                  <span class="text-foreground/60 text-sm">Shipping</span>
+                  <span class="text-foreground/40 text-sm">Calculated at checkout</span>
+                </div>
+              </div>
+
+              {%- # Total -%}
+              <div class="flex items-center justify-between">
+                <span class="text-foreground text-base font-semibold">Total</span>
+                <span class="text-foreground text-base font-bold" id="cart-total">
+                  {{ cart.total_price | money }}
+                </span>
+              </div>
+
+              {%- # Note -%}
+              {%- if section.settings.show_note -%}
+                <div class="flex flex-col gap-2">
+                  <label
+                    for="cart-note"
+                    class="text-foreground/40 text-xs font-medium tracking-widest uppercase"
+                  >
+                    Order Note
+                  </label>
+                  <textarea
+                    id="cart-note"
+                    name="note"
+                    rows="3"
+                    placeholder="Special instructions..."
+                    class="text-foreground placeholder:text-foreground/30 w-full resize-none px-3 py-2 text-sm transition-all duration-200 outline-none"
+                    style="background: var(--background); border: 1px solid var(--border); border-radius: var(--radius);"
+                    data-gsap="focus-glow"
+                  >{{ cart.note }}</textarea>
+                </div>
+              {%- endif -%}
+
+              {%- # Checkout button -%}
+              <button
+                type="submit"
+                name="checkout"
+                class="inline-flex w-full items-center justify-center gap-2 px-7 py-4 text-sm font-semibold transition-all duration-200 hover:opacity-80"
+                style="background: var(--primary); color: var(--primary-foreground); border-radius: var(--radius);"
+                data-gsap="hover-lift"
+              >
+                {{ section.settings.checkout_label | default: 'Checkout' }}
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  data-arrow
+                >
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </button>
+
+              {%- # Continue shopping -%}
+
+              <a
+                href="{{ section.settings.continue_url | default: '/collections/all' }}"
+                class="text-foreground/40 hover:text-foreground text-center text-xs transition-colors duration-200"
+              >
+                {{ section.settings.continue_label | default: 'Continue Shopping' }}
+              </a>
+
+              {%- # Trust badges -%}
+              {%- if section.settings.show_trust -%}
+                <div
+                  class="flex flex-wrap justify-center gap-4 border-t pt-4"
+                  style="border-color: var(--border);"
+                >
+                  {%- assign trust_items = section.settings.trust_text | split: '|' -%}
+                  {%- for item in trust_items -%}
+                    <div class="text-foreground/30 flex items-center gap-1 text-xs">
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                      {{ item | strip }}
+                    </div>
+                  {%- endfor -%}
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+      {%- endform -%}
+
+    {%- else -%}
+      {%- # Empty cart -%}
+      <div
+        class="flex flex-col items-center justify-center gap-6 py-32 text-center"
+        data-gsap="fade-up"
+        data-scroll="true"
+      >
+        <svg
+          width="64"
+          height="64"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1"
+          class="text-foreground/20"
+        >
+          <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+        </svg>
+        <div class="flex flex-col gap-2">
+          <h2
+            class="text-foreground text-2xl font-bold"
+            style="font-family: var(--font-headline);"
+          >
+            Your cart is empty
+          </h2>
+          <p class="text-foreground/40 text-sm">Looks like you haven't added anything yet.</p>
+        </div>
+
+        <a
+          href="/collections/all"
+          class="inline-flex items-center gap-2 px-7 py-3.5 text-sm font-semibold transition-all duration-200 hover:opacity-80"
+          style="background: var(--primary); color: var(--primary-foreground); border-radius: var(--radius);"
+          data-gsap="hover-lift"
+        >
+          Start Shopping
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            data-arrow
+          >
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<script>
+  // ── Update cart item quantity via AJAX ─────────
+  async function updateCartItem(key, quantity) {
+    const res = await fetch('/cart/change.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: key, quantity }),
+    });
+    const cart = await res.json();
+
+    if (quantity <= 0) {
+      const el = document.getElementById('cart-item-' + key);
+      if (el) el.remove();
+    } else {
+      const qtyEl = document.getElementById('qty-' + key);
+      if (qtyEl) qtyEl.textContent = quantity;
+    }
+
+    updateCartTotals(cart);
+    updateCartCount(cart.item_count);
+  }
+
+  // ── Remove cart item ───────────────────────────
+  async function removeCartItem(key) {
+    await updateCartItem(key, 0);
+  }
+
+  // ── Update totals in summary ───────────────────
+  function updateCartTotals(cart) {
+    const subtotalEl = document.getElementById('cart-subtotal');
+    const totalEl = document.getElementById('cart-total');
+    const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: cart.currency });
+
+    if (subtotalEl) subtotalEl.textContent = formatter.format(cart.total_price / 100);
+    if (totalEl) totalEl.textContent = formatter.format(cart.total_price / 100);
+
+    if (cart.item_count === 0) {
+      window.location.reload();
+    }
+  }
+
+  // ── Update cart count in header ────────────────
+  function updateCartCount(count) {
+    const countEls = document.querySelectorAll('[data-cart-count]');
+    countEls.forEach((el) => (el.textContent = count));
+  }
+
+  function changeQty(key, delta) {
+    const qtyEl = document.getElementById('qty-' + key);
+    if (!qtyEl) return;
+
+    const currentQty = parseInt(qtyEl.textContent, 10) || 0;
+    const newQty = currentQty + delta;
+
+    if (newQty < 0) return;
+
+    updateCartItem(key, newQty);
+  }
+</script>
+
+{% schema %}
+{
+  "name": "Main Cart",
+  "tag": "section",
+  "class": "site-main-cart-section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Page Title",
+      "default": "Your Cart"
+    },
+    {
+      "type": "text",
+      "id": "checkout_label",
+      "label": "Checkout Button Label",
+      "default": "Checkout"
+    },
+    {
+      "type": "text",
+      "id": "continue_label",
+      "label": "Continue Shopping Label",
+      "default": "Continue Shopping"
+    },
+    {
+      "type": "url",
+      "id": "continue_url",
+      "label": "Continue Shopping URL"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_note",
+      "label": "Show Order Note",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Trust Badges"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_trust",
+      "label": "Show Trust Badges",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "trust_text",
+      "label": "Trust Items (separate with |)",
+      "default": "Secure Checkout | Free Returns | 24/7 Support"
+    }
+  ]
+}
+{% endschema %}

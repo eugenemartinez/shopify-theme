@@ -1,0 +1,22 @@
+{
+  "name": "shopify-theme",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev:store": "node scripts/dev.js",
+    "build": "vite build",
+    "package": "vite build && node scripts/package-theme.js",
+    "package:zip": "vite build && node scripts/package-theme.js --zip",
+    "clean": "rm -rf node_modules release && echo 'cleaned'"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.19",
+    "vite": "^7.3.1"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.2.1",
+    "gsap": "^3.14.2",
+    "tailwindcss": "^4.2.1"
+  }
+}

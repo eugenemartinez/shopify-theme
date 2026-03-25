@@ -1,0 +1,22 @@
+<style>
+  {{ settings.font_primary | font_face: font_display: 'swap' }}
+  {{ settings.font_heading | font_face: font_display: 'swap' }}
+
+  :root {
+    /* ── Colors ── */
+    --background: {{ settings.color_background }};
+    --foreground: {{ settings.color_foreground }};
+    --primary:    {{ settings.color_primary }};
+    --secondary:  {{ settings.color_secondary }};
+    --accent:     {{ settings.color_tertiary }};
+
+    /* ── Typography ── */
+    --font-headline: {{ settings.font_heading.family }}, {{ settings.font_heading.fallback_families }};
+    --font-body:     {{ settings.font_primary.family }}, {{ settings.font_primary.fallback_families }};
+
+    /* ── Layout ── */
+    --page-width:  {{ settings.page_width }}px;
+    --page-margin: {{ settings.page_margin }}px;
+    --radius:      {{ settings.border_radius }}px;
+  }
+</style>
