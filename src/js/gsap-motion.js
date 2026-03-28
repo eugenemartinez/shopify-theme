@@ -121,6 +121,19 @@ export function initGsapMotion() {
 					});
 					break;
 
+				case "parallax":
+					gsap.to(el, {
+						scale: 1.2,
+						ease: "none",
+						scrollTrigger: {
+							trigger: el,
+							start: "top bottom",
+							end: "bottom top",
+							scrub: true,
+						},
+					});
+					break;
+
 				// ── Hover animations ──────────────────────────────────
 
 				case "hover-lift":
@@ -236,12 +249,22 @@ export function initGsapMotion() {
 
 				case "pulse":
 					gsap.to(el, {
-						scale: scale,
-						duration,
-						delay,
+						scale: scale, // Uses data-scale or defaults to 1.2
+						duration: duration,
+						delay: delay,
 						repeat: -1,
 						yoyo: true,
 						ease: "sine.inOut",
+						// Add this to ensure it respects the scroll trigger if data-scroll="true"
+						...(scroll
+							? {
+									scrollTrigger: {
+										trigger: el,
+										start: scrollStart,
+										toggleActions: "play none none none", // Starts when seen, stays playing
+									},
+								}
+							: {}),
 					});
 					break;
 
@@ -304,6 +327,38 @@ export function initGsapMotion() {
 						yoyo: true,
 						ease: "power1.inOut",
 					});
+					break;
+
+				case "typewriter":
+					// We move the 'content' grab INSIDE the runTypewriter function
+					// so it picks up the latest dynamic ID from the DOM.
+					const animDuration = parseFloat(el.dataset.duration) || 2;
+					const animDelay = parseFloat(el.dataset.delay) || 0;
+
+					const runTypewriter = () => {
+						const currentContent = el.innerText; // Grabs the dynamic Shopify ID
+						const speed = (animDuration * 1000) / currentContent.length;
+
+						el.innerHTML = "";
+						let i = 0;
+
+						const type = () => {
+							if (i < currentContent.length) {
+								const char = currentContent.charAt(i);
+								el.innerHTML += char === " " ? "&nbsp;" : char;
+								i++;
+								setTimeout(type, speed);
+							} else {
+								// For a Nav Display, you might want a longer pause (e.g., 10s)
+								// or no loop at all.
+								setTimeout(runTypewriter, 10000);
+							}
+						};
+
+						type();
+					};
+
+					setTimeout(runTypewriter, animDelay * 1000);
 					break;
 
 				// ── Stagger children ──────────────────────────────────
