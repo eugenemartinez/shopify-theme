@@ -83,10 +83,17 @@ function resolveEase(easeStr) {
 // Motion's animate() doesn't support yoyo natively in the same call.
 // We replicate it with repeat + direction: "alternate".
 function loop(el, keyframes, options) {
-	return animate(el, keyframes, {
+	// Build a round-trip by mirroring each keyframe array: [start, end] → [start, end, start]
+	const roundTrip = {};
+	for (const [prop, values] of Object.entries(keyframes)) {
+		const [from, to] = values;
+		roundTrip[prop] = [from, to, from];
+	}
+
+	return animate(el, roundTrip, {
 		...options,
 		repeat: Infinity,
-		direction: "alternate",
+		easing: options.easing ?? "easeInOut",
 	});
 }
 
