@@ -1,0 +1,360 @@
+<section
+  id="main-collection"
+  class="full-width w-full py-20"
+  style="background: var(--background);"
+>
+  <div
+    class="px-6"
+    style="max-width: var(--page-width); margin-inline: auto;"
+  >
+    {%- # Collection header -%}
+    <div
+      class="mb-12 flex flex-col gap-4 border-b pb-8"
+      style="border-color: var(--border);"
+    >
+      <div class="flex flex-col gap-2" data-motion="fade-up" data-scroll="true">
+        <h1
+          class="text-foreground text-4xl font-bold tracking-tight md:text-5xl"
+          style="font-family: var(--font-headline);"
+        >
+          {{ collection.title }}
+        </h1>
+        {%- if collection.description != blank -%}
+          <p class="text-foreground/50 max-w-2xl text-base">
+            {{ collection.description }}
+          </p>
+        {%- endif -%}
+      </div>
+
+      {%- # Toolbar — count + sort -%}
+      <div
+        class="flex items-center justify-between"
+        data-motion="fade-up"
+        data-scroll="true"
+        data-delay="0.1"
+      >
+        <p class="text-foreground/40 text-sm">
+          {{ collection.products_count }}
+          {{ collection.products_count | pluralize: 'product', 'products' }}
+        </p>
+
+        {%- if section.settings.show_sort -%}
+          <div class="flex items-center gap-2">
+            <label
+              for="sort-by"
+              class="text-foreground/40 text-xs font-medium tracking-widest uppercase"
+            >
+              Sort
+            </label>
+            <select
+              id="sort-by"
+              name="sort_by"
+              class="px-3 py-2 text-sm transition-all duration-200 outline-none"
+              style="
+                background: var(--card);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                color: var(--foreground); /* ensures visibility in dark/light modes */
+              "
+              onchange="sortCollection(this.value)"
+            >
+              <option
+                value="manual"
+                {% if collection.sort_by == 'manual' %}
+                  selected
+                {% endif %}
+              >
+                Featured
+              </option>
+              <option
+                value="best-selling"
+                {% if collection.sort_by == 'best-selling' %}
+                  selected
+                {% endif %}
+              >
+                Best Selling
+              </option>
+              <option
+                value="title-ascending"
+                {% if collection.sort_by == 'title-ascending' %}
+                  selected
+                {% endif %}
+              >
+                A–Z
+              </option>
+              <option
+                value="title-descending"
+                {% if collection.sort_by == 'title-descending' %}
+                  selected
+                {% endif %}
+              >
+                Z–A
+              </option>
+              <option
+                value="price-ascending"
+                {% if collection.sort_by == 'price-ascending' %}
+                  selected
+                {% endif %}
+              >
+                Price: Low to High
+              </option>
+              <option
+                value="price-descending"
+                {% if collection.sort_by == 'price-descending' %}
+                  selected
+                {% endif %}
+              >
+                Price: High to Low
+              </option>
+              <option
+                value="created-descending"
+                {% if collection.sort_by == 'created-descending' %}
+                  selected
+                {% endif %}
+              >
+                Newest
+              </option>
+            </select>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+
+    {%- # Product grid -%}
+    {%- if collection.products.size > 0 -%}
+      <div
+        class="grid grid-cols-2 gap-4 md:gap-6 {{ section.settings.columns }}"
+        data-motion="stagger-fade-up"
+        data-scroll="true"
+        data-stagger="0.08"
+      >
+        {%- for product in collection.products -%}
+          <a
+            href="{{ product.url }}"
+            class="flex flex-col gap-3"
+            data-motion="hover-card"
+          >
+            {%- # Product image -%}
+            <div
+              class="relative overflow-hidden"
+              style="background: var(--secondary); border-radius: var(--radius);"
+            >
+              {%- if product.featured_image -%}
+                <img
+                  src="{{ product.featured_image | image_url: width: 600 }}"
+                  alt="{{ product.featured_image.alt | escape }}"
+                  class="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                  style="aspect-ratio: {{ section.settings.image_ratio }};"
+                  loading="lazy"
+                >
+              {%- else -%}
+                <img
+                  src="{{ 'placeholder.png' | asset_url }}"
+                  alt="{{ product.title }}"
+                  class="h-full w-full object-cover"
+                  style="aspect-ratio: {{ section.settings.image_ratio }};"
+                  loading="lazy"
+                >
+              {%- endif -%}
+
+              {%- # Badges -%}
+              <div class="absolute top-3 left-3 flex flex-col gap-1">
+                {%- if product.available == false -%}
+                  <span
+                    class="px-2 py-1 text-xs font-semibold"
+                    style="background: var(--foreground); color: var(--background); border-radius: var(--radius);"
+                  >
+                    Sold Out
+                  </span>
+                {%- elsif product.compare_at_price > product.price -%}
+                  <span
+                    class="px-2 py-1 text-xs font-semibold"
+                    style="background: var(--foreground); color: var(--background); border-radius: var(--radius);"
+                  >
+                    Sale
+                  </span>
+                {%- endif -%}
+              </div>
+            </div>
+
+            {%- # Product info -%}
+            <div class="flex flex-col gap-1 px-1">
+              {%- if section.settings.show_vendor and product.vendor != blank -%}
+                <p class="text-foreground/40 text-xs tracking-widest uppercase">
+                  {{ product.vendor }}
+                </p>
+              {%- endif -%}
+
+              <h3
+                class="text-foreground text-sm font-medium"
+                style="font-family: var(--font-headline);"
+              >
+                {{ product.title }}
+              </h3>
+
+              <div class="flex items-baseline gap-2">
+                <span class="text-foreground text-sm font-semibold">
+                  {{ product.price | money }}
+                </span>
+                {%- if product.compare_at_price > product.price -%}
+                  <span class="text-foreground/40 text-xs line-through">
+                    {{ product.compare_at_price | money }}
+                  </span>
+                {%- endif -%}
+              </div>
+            </div>
+          </a>
+        {%- endfor -%}
+      </div>
+
+      {%- # Pagination -%}
+      {%- if paginate.pages > 1 -%}
+        <div
+          class="mt-16 flex items-center justify-center gap-2"
+          data-motion="fade-up"
+          data-scroll="true"
+        >
+          {%- if paginate.previous -%}
+            <a
+              href="{{ paginate.previous.url }}"
+              class="text-foreground/60 hover:text-foreground flex h-10 w-10 items-center justify-center text-sm transition-colors duration-200"
+              style="border: 1px solid var(--border); border-radius: var(--radius);"
+              data-motion="hover-lift"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </a>
+          {%- endif -%}
+
+          {%- for part in paginate.parts -%}
+            {%- if part.is_link -%}
+              <a
+                href="{{ part.url }}"
+                class="hover:text-foreground flex h-10 w-10 items-center justify-center text-sm transition-colors duration-200"
+                style="border: 1px solid var(--border); border-radius: var(--radius); color: var(--foreground)/60;"
+                data-motion="hover-lift"
+              >
+                {{ part.title }}
+              </a>
+            {%- elsif part.title == paginate.current_page -%}
+              <span
+                class="flex h-10 w-10 items-center justify-center text-sm font-semibold"
+                style="background: var(--primary); color: var(--primary-foreground); border-radius: var(--radius);"
+              >
+                {{ part.title }}
+              </span>
+            {%- else -%}
+              <span class="text-foreground/30">{{ part.title }}</span>
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- if paginate.next -%}
+            <a
+              href="{{ paginate.next.url }}"
+              class="text-foreground/60 hover:text-foreground flex h-10 w-10 items-center justify-center text-sm transition-colors duration-200"
+              style="border: 1px solid var(--border); border-radius: var(--radius);"
+              data-motion="hover-lift"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+    {%- else -%}
+      {%- # Empty state -%}
+      <div
+        class="flex flex-col items-center justify-center gap-4 py-32 text-center"
+        data-motion="fade-up"
+        data-scroll="true"
+      >
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1"
+          class="text-foreground/20"
+        >
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <h2
+          class="text-foreground text-2xl font-bold"
+          style="font-family: var(--font-headline);"
+        >
+          No products found
+        </h2>
+        <p class="text-foreground/40 text-sm">This collection is empty.</p>
+        <a
+          href="/collections/all"
+          class="mt-4 inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold transition-all duration-200 hover:opacity-80"
+          style="background: var(--primary); color: var(--primary-foreground); border-radius: var(--radius);"
+          data-motion="hover-lift"
+        >
+          Browse All Products
+        </a>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{%- # Wrap in paginate tag in template -%}
+{%- comment -%}
+  Note: pagination is handled in templates/collection.json
+  by wrapping with {%- paginate collection.products by 24 -%}
+{%- endcomment -%}
+
+<script>
+  function sortCollection(value) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('sort_by', value);
+    window.location.href = url.toString();
+  }
+</script>
+
+{% schema %}
+{
+  "name": "Main Collection",
+  "tag": "section",
+  "class": "site-main-collection-section",
+  "settings": [
+    {
+      "type": "select",
+      "id": "columns",
+      "label": "Columns (Desktop)",
+      "options": [
+        { "value": "lg:grid-cols-3", "label": "3 Columns" },
+        { "value": "lg:grid-cols-4", "label": "4 Columns" }
+      ],
+      "default": "lg:grid-cols-4"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image Ratio",
+      "options": [
+        { "value": "1/1", "label": "Square" },
+        { "value": "4/3", "label": "Landscape" },
+        { "value": "3/4", "label": "Portrait" }
+      ],
+      "default": "3/4"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show Vendor",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sort",
+      "label": "Show Sort Dropdown",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

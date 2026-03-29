@@ -1,0 +1,24 @@
+{
+	"sections": {
+		"rich-text": {
+			"type": "rich-text",
+			"settings": {
+				"heading": "Contact Us",
+				"text": "We’d love to hear from you! Fill out the form below and we’ll get back to you as soon as possible."
+			}
+		},
+		"contact-form": {
+			"type": "contact-form",
+			"settings": {}
+		},
+		"related-products": {
+			"type": "related-products",
+			"settings": {
+				"heading": "Products you may like",
+				"columns": "grid-cols-4",
+				"limit": 8
+			}
+		}
+	},
+	"order": ["rich-text", "contact-form", "related-products"]
+}

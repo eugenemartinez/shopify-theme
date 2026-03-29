@@ -1,0 +1,285 @@
+{%- if section.settings.bg == 'alt' -%}
+  {%- assign section_bg = 'var(--secondary)' -%}
+{%- else -%}
+  {%- assign section_bg = 'var(--background)' -%}
+{%- endif -%}
+
+<section
+  id="image-text-{{ section.id }}"
+  class="full-width w-full py-20"
+  style="background: {{ section_bg }};"
+>
+  <div
+    class="px-6"
+    style="max-width: var(--page-width); margin-inline: auto;"
+  >
+    <div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+      {%- # Image -%}
+      <div
+        class="{% if img_first %}lg:order-1{% else %}lg:order-2{% endif %} overflow-hidden"
+        style="border-radius: var(--radius);"
+        data-motion="{% if img_first %}fade-right{% else %}fade-left{% endif %}"
+        data-scroll="true"
+      >
+        {%- if section.settings.image != blank -%}
+          <img
+            src="{{ section.settings.image | image_url: width: 900 }}"
+            alt="{{ section.settings.image.alt | escape }}"
+            class="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+            style="aspect-ratio: {{ section.settings.image_ratio }};"
+            loading="lazy"
+          >
+        {%- else -%}
+          <img
+            src="{{ 'placeholder.png' | asset_url }}"
+            alt="Placeholder"
+            class="h-full w-full object-cover"
+            style="aspect-ratio: {{ section.settings.image_ratio }};"
+            loading="lazy"
+          >
+        {%- endif -%}
+      </div>
+
+      {%- # Text -%}
+      <div class="{% if img_first %}lg:order-2{% else %}lg:order-1{% endif %} flex flex-col gap-6">
+        {%- if section.settings.eyebrow != blank -%}
+          <p
+            class="text-foreground/40 text-xs font-semibold tracking-widest uppercase"
+            data-motion="fade-up"
+            data-scroll="true"
+            data-delay="0.1"
+          >
+            {{ section.settings.eyebrow }}
+          </p>
+        {%- endif -%}
+
+        {%- if section.settings.heading != blank -%}
+          <h2
+            class="text-foreground text-4xl leading-tight font-bold tracking-tight md:text-5xl"
+            style="font-family: var(--font-headline);"
+            data-motion="fade-up"
+            data-scroll="true"
+            data-delay="0.2"
+          >
+            {{ section.settings.heading }}
+          </h2>
+        {%- endif -%}
+
+        {%- if section.settings.content != blank -%}
+          <div
+            class="prose prose-neutral text-foreground/60 max-w-none"
+            data-motion="fade-up"
+            data-scroll="true"
+            data-delay="0.3"
+          >
+            {{ section.settings.content }}
+          </div>
+        {%- endif -%}
+
+        {%- # Stats row -%}
+        {%- if section.settings.show_stats -%}
+          <div
+            class="flex flex-wrap gap-8 border-t pt-6"
+            style="border-color: var(--border);"
+            data-motion="fade-up"
+            data-scroll="true"
+            data-delay="0.35"
+          >
+            {%- assign stats = section.settings.stats_text | split: '|' -%}
+            {%- for stat in stats -%}
+              {%- assign stat_parts = stat | split: ':' -%}
+              {%- if stat_parts.size == 2 -%}
+                <div class="flex flex-col gap-1">
+                  <span
+                    class="text-foreground text-3xl font-bold"
+                    style="font-family: var(--font-headline);"
+                  >
+                    {{ stat_parts[0] | strip }}
+                  </span>
+                  <span class="text-foreground/40 text-xs tracking-widest uppercase">
+                    {{ stat_parts[1] | strip }}
+                  </span>
+                </div>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+
+        {%- # Buttons -%}
+        <div
+          class="flex flex-wrap items-center gap-4"
+          data-motion="fade-up"
+          data-scroll="true"
+          data-delay="0.4"
+        >
+          {%- if section.settings.btn1_label != blank -%}
+            <a
+              href="{{ section.settings.btn1_url }}"
+              class="
+                inline-flex items-center gap-2 px-7 py-3.5 text-sm
+                font-semibold transition-all duration-200 hover:opacity-80
+              "
+              style="
+                background: var(--primary); color:
+                var(--primary-foreground); border-radius: var(--radius);
+              "
+              data-motion="hover-lift"
+            >
+              {{- section.settings.btn1_label -}}
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                data-arrow
+              >
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
+          {%- endif -%}
+
+          {%- if section.settings.btn2_label != blank -%}
+            <a
+              href="{{ section.settings.btn2_url }}"
+              class="
+                inline-flex items-center gap-2 px-7 py-3.5 text-sm
+                font-semibold transition-all duration-200 hover:opacity-80
+              "
+              style="
+                background: transparent; color:
+                var(--foreground); border: 1px solid var(--border); border-radius: var(--radius);
+              "
+              data-motion="hover-lift"
+            >
+              {{- section.settings.btn2_label -}}
+            </a>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Image + Text",
+  "tag": "section",
+  "class": "site-image-text-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow Text"
+    },
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "Heading",
+      "default": "The story behind the craft."
+    },
+    {
+      "type": "richtext",
+      "id": "content",
+      "label": "Content",
+      "default": "<p>Every piece starts with an idea. We take that idea and shape it into something real — something you can hold, wear, and keep.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Buttons"
+    },
+    {
+      "type": "text",
+      "id": "btn1_label",
+      "label": "Primary Button Label"
+    },
+    {
+      "type": "url",
+      "id": "btn1_url",
+      "label": "Primary Button URL"
+    },
+    {
+      "type": "text",
+      "id": "btn2_label",
+      "label": "Secondary Button Label"
+    },
+    {
+      "type": "url",
+      "id": "btn2_url",
+      "label": "Secondary Button URL"
+    },
+    {
+      "type": "header",
+      "content": "Stats"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_stats",
+      "label": "Show Stats",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "stats_text",
+      "label": "Stats (format: value:label | value:label)",
+      "default": "10k+:Happy Customers | 5yr:In Business | 4.9:Star Rating"
+    },
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image Ratio",
+      "options": [
+        { "value": "1/1", "label": "Square" },
+        { "value": "4/3", "label": "Landscape" },
+        { "value": "3/4", "label": "Portrait" }
+      ],
+      "default": "4/3"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Image Position",
+      "options": [
+        { "value": "image_first", "label": "Image Left" },
+        { "value": "text_first", "label": "Image Right" }
+      ],
+      "default": "image_first"
+    },
+    {
+      "type": "select",
+      "id": "bg",
+      "label": "Background",
+      "options": [
+        { "value": "default", "label": "Default" },
+        { "value": "alt", "label": "Alternate" }
+      ],
+      "default": "default"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image + Text"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,130 @@
+[
+	{
+		"name": "Typography",
+		"settings": [
+			{
+				"type": "font_picker",
+				"id": "font_primary",
+				"label": "Primary Font",
+				"default": "inter_n4"
+			},
+			{
+				"type": "font_picker",
+				"id": "font_heading",
+				"label": "Heading Font",
+				"default": "inter_n7"
+			}
+		]
+	},
+	{
+		"name": "Colors",
+		"settings": [
+			{
+				"type": "color",
+				"id": "color_background",
+				"label": "Background",
+				"default": "#f8f8f7"
+			},
+			{
+				"type": "color",
+				"id": "color_foreground",
+				"label": "Foreground",
+				"default": "#1a1a1a"
+			},
+			{
+				"type": "color",
+				"id": "color_primary",
+				"label": "Primary",
+				"default": "#1a1a1a"
+			},
+			{
+				"type": "color",
+				"id": "color_secondary",
+				"label": "Secondary",
+				"default": "#f0efed"
+			},
+			{
+				"type": "color",
+				"id": "color_tertiary",
+				"label": "Accent",
+				"default": "#e8e6e3"
+			}
+		]
+	},
+	{
+		"name": "Layout",
+		"settings": [
+			{
+				"type": "range",
+				"id": "page_width",
+				"label": "Page Width",
+				"min": 1000,
+				"max": 1600,
+				"step": 10,
+				"unit": "px",
+				"default": 1280
+			},
+			{
+				"type": "range",
+				"id": "page_margin",
+				"label": "Page Margin",
+				"min": 16,
+				"max": 64,
+				"step": 4,
+				"unit": "px",
+				"default": 24
+			},
+			{
+				"type": "range",
+				"id": "border_radius",
+				"label": "Border Radius",
+				"min": 0,
+				"max": 24,
+				"step": 2,
+				"unit": "px",
+				"default": 8
+			}
+		]
+	},
+	{
+		"name": "Social",
+		"settings": [
+			{
+				"type": "text",
+				"id": "social_instagram",
+				"label": "Instagram URL"
+			},
+			{
+				"type": "text",
+				"id": "social_facebook",
+				"label": "Facebook URL"
+			},
+			{
+				"type": "text",
+				"id": "social_twitter",
+				"label": "Twitter / X URL"
+			},
+			{
+				"type": "text",
+				"id": "social_tiktok",
+				"label": "TikTok URL"
+			},
+			{
+				"type": "text",
+				"id": "social_youtube",
+				"label": "YouTube URL"
+			}
+		]
+	},
+	{
+		"name": "Footer",
+		"settings": [
+			{
+				"type": "richtext",
+				"id": "footer_copyright",
+				"label": "Copyright Text",
+				"default": "<p>© 2025 Your Store. All rights reserved.</p>"
+			}
+		]
+	}
+]

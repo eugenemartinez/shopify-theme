@@ -1,0 +1,142 @@
+<section
+  id="rich-text-{{ section.id }}"
+  class="full-width center w-full {{ section.settings.padding }}"
+  style="background: var(--background); display: flex; flex-direction: column; align-items: center;"
+>
+  <div class="flex w-full max-w-3xl flex-col gap-6 px-6 pt-16 text-center">
+    {%- if section.settings.eyebrow != blank -%}
+      <p
+        class="text-foreground/40 text-xs font-semibold tracking-widest uppercase"
+        data-motion="fade-up"
+        data-scroll="true"
+        data-delay="0.1"
+      >
+        {{ section.settings.eyebrow }}
+      </p>
+    {%- endif -%}
+
+    {%- if section.settings.heading != blank -%}
+      <h2
+        class="text-foreground text-4xl leading-tight font-bold tracking-tight md:text-5xl"
+        style="font-family: var(--font-headline);"
+        data-motion="fade-up"
+        data-scroll="true"
+        data-delay="0.2"
+      >
+        {{ section.settings.heading }}
+      </h2>
+    {%- endif -%}
+
+    {%- if section.settings.content != blank -%}
+      <div
+        class="prose prose-neutral text-foreground/60 max-w-none"
+        data-motion="fade-up"
+        data-scroll="true"
+        data-delay="0.3"
+      >
+        {{ section.settings.content }}
+      </div>
+    {%- endif -%}
+
+    {%- assign btn_label = section.settings.btn_label -%}
+    {%- assign btn_url = section.settings.btn_url -%}
+    {%- if btn_label != blank -%}
+      <div
+        class="flex flex-wrap items-center justify-center gap-4 md:gap-6"
+        data-motion="fade-up"
+        data-scroll="true"
+        data-delay="0.4"
+      >
+        <a
+          href="{{ btn_url }}"
+          class="inline-flex items-center gap-2 px-7 py-3.5 text-sm font-semibold transition-all duration-200 hover:opacity-80"
+          style="background: var(--primary); color: var(--primary-foreground); border-radius: var(--radius);"
+          data-motion="hover-lift"
+        >
+          {{ btn_label }}
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            data-arrow
+          >
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Rich Text",
+  "tag": "section",
+  "class": "site-rich-text-section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow Text"
+    },
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Built with purpose."
+    },
+    {
+      "type": "richtext",
+      "id": "content",
+      "label": "Content",
+      "default": "<p>We believe in making things that matter. Every detail considered, every decision intentional.</p>"
+    },
+    {
+      "type": "select",
+      "id": "content_align",
+      "label": "Alignment",
+      "options": [
+        { "value": "text-left", "label": "Left" },
+        { "value": "text-center", "label": "Center" },
+        { "value": "text-right", "label": "Right" }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "text",
+      "id": "btn_label",
+      "label": "Button Label"
+    },
+    {
+      "type": "url",
+      "id": "btn_url",
+      "label": "Button URL"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "select",
+      "id": "padding",
+      "label": "Vertical Padding",
+      "options": [
+        { "value": "py-12", "label": "Small" },
+        { "value": "py-20", "label": "Medium" },
+        { "value": "py-32", "label": "Large" }
+      ],
+      "default": "py-20"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Rich Text"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,413 @@
+<section
+  id="main-product"
+  class="full-width flex w-full py-32"
+  style="background: var(--background);"
+>
+  <div
+    class="px-6"
+    style="max-width: var(--page-width); margin-inline: auto;"
+  >
+    <div class="grid grid-cols-1 gap-12 lg:grid-cols-2">
+      {%- # Left — media gallery -%}
+      <div
+        class="flex flex-col gap-4"
+        data-motion="fade-right"
+        data-scroll="true"
+      >
+        {%- # Main image -%}
+        <div
+          class="relative overflow-hidden"
+          style="border-radius: var(--radius); background: var(--secondary);"
+          id="product-main-image"
+        >
+          {%- if product.featured_image -%}
+            <img
+              src="{{ product.featured_image | image_url: width: 900 }}"
+              alt="{{ product.featured_image.alt | escape }}"
+              class="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+              style="aspect-ratio: 1/1;"
+              loading="eager"
+              id="product-main-img"
+            >
+          {%- else -%}
+            <img
+              src="{{ 'placeholder.png' | asset_url }}"
+              alt="{{ product.title }}"
+              class="h-full w-full object-cover"
+              style="aspect-ratio: 1/1;"
+            >
+          {%- endif -%}
+        </div>
+
+        {%- # Thumbnails -%}
+        {%- if product.images.size > 1 -%}
+          <div class="flex gap-3 overflow-x-auto pb-1">
+            {%- for image in product.images -%}
+              <button
+                class="shrink-0 overflow-hidden transition-all duration-200"
+                style="border-radius: var(--radius); border: 2px solid {% if forloop.first %}var(--foreground){% else %}var(--border){% endif %}; width: 72px; height: 72px;"
+                data-thumbnail="{{ image | image_url: width: 900 }}"
+                data-thumbnail-alt="{{ image.alt | escape }}"
+                onclick="selectThumbnail(this)"
+              >
+                <img
+                  src="{{ image | image_url: width: 150 }}"
+                  alt="{{ image.alt | escape }}"
+                  class="h-full w-full object-cover"
+                  loading="lazy"
+                >
+              </button>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- # Right — product info -%}
+      <div
+        class="flex flex-col gap-6"
+        data-motion="fade-left"
+        data-scroll="true"
+      >
+        {%- # Vendor -%}
+        {%- if product.vendor != blank and section.settings.show_vendor -%}
+          <p class="text-foreground/40 text-xs font-semibold tracking-widest uppercase">
+            {{ product.vendor }}
+          </p>
+        {%- endif -%}
+
+        {%- # Title -%}
+        <h1
+          class="text-foreground text-4xl leading-tight font-bold tracking-tight"
+          style="font-family: var(--font-headline);"
+        >
+          {{ product.title }}
+        </h1>
+
+        {%- # Price -%}
+        <div class="flex items-baseline gap-3">
+          <span
+            class="text-foreground text-2xl font-bold"
+            id="product-price"
+          >
+            {{ product.selected_or_first_available_variant.price | money }}
+          </span>
+          {%- if product.selected_or_first_available_variant.compare_at_price
+              > product.selected_or_first_available_variant.price
+          -%}
+            <span class="text-foreground/40 text-base line-through">
+              {{ product.selected_or_first_available_variant.compare_at_price | money }}
+            </span>
+            <span
+              class="px-2 py-0.5 text-xs font-semibold"
+              style="background: var(--accent); border-radius: var(--radius); color: var(--foreground);"
+            >
+              Sale
+            </span>
+          {%- endif -%}
+        </div>
+
+        {%- # Product form -%}
+        {%- form 'product', product, id: 'product-form', novalidate: true -%}
+          <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" id="variant-id">
+
+          {%- # Variants -%}
+          {%- unless product.has_only_default_variant -%}
+            <div class="flex flex-col gap-5">
+              {%- for option in product.options_with_values -%}
+                <div class="flex flex-col gap-3">
+                  <label class="text-foreground/50 text-xs font-semibold tracking-widest uppercase">
+                    {{ option.name }}:
+                    <span
+                      class="text-foreground tracking-normal normal-case"
+                      id="selected-{{ option.name | handleize }}"
+                    >
+                      {{ option.selected_value }}
+                    </span>
+                  </label>
+
+                  <div class="flex flex-wrap gap-2" data-option-name="{{ option.name }}">
+                    {%- for value in option.values -%}
+                      <button
+                        type="button"
+                        class="px-4 py-2 text-sm font-medium transition-all duration-200"
+                        style="border-radius: var(--radius); border: 1px solid {% if option.selected_value == value %}var(--foreground){% else %}var(--border){% endif %}; background: {% if option.selected_value == value %}var(--foreground){% else %}transparent{% endif %}; color: {% if option.selected_value == value %}var(--background){% else %}var(--foreground){% endif %};"
+                        data-option-value="{{ value }}"
+                        data-option-index="{{ forloop.parentloop.index0 }}"
+                        onclick="selectVariantOption(this)"
+                      >
+                        {{ value }}
+                      </button>
+                    {%- endfor -%}
+                  </div>
+                </div>
+              {%- endfor -%}
+            </div>
+          {%- endunless -%}
+
+          {%- # Quantity -%}
+          {%- if section.settings.show_quantity -%}
+            <div class="flex flex-col gap-3 pt-6">
+              <label class="text-foreground/50 text-xs font-semibold tracking-widest uppercase"> Quantity </label>
+              <div
+                class="flex items-center"
+                style="border: 1px solid var(--border); border-radius: var(--radius); width: fit-content;"
+              >
+                <button
+                  type="button"
+                  class="text-foreground/60 hover:text-foreground flex h-10 w-10 items-center justify-center transition-colors duration-200"
+                  onclick="updateQty(-1)"
+                  aria-label="Decrease quantity"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                </button>
+                <input
+                  type="number"
+                  name="quantity"
+                  id="quantity"
+                  value="1"
+                  min="1"
+                  class="text-foreground h-10 w-12 text-center text-sm font-medium outline-none"
+                  style="background: transparent; border-left: 1px solid var(--border); border-right: 1px solid var(--border);"
+                >
+                <button
+                  type="button"
+                  class="text-foreground/60 hover:text-foreground flex h-10 w-10 items-center justify-center transition-colors duration-200"
+                  onclick="updateQty(1)"
+                  aria-label="Increase quantity"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          {%- endif -%}
+
+          {%- # Add to cart -%}
+          <div class="flex flex-col gap-3 pt-6">
+            <button
+              type="submit"
+              name="add"
+              id="add-to-cart"
+              class="inline-flex w-full items-center justify-center gap-2 px-7 py-4 text-sm font-semibold transition-all duration-200 hover:opacity-80"
+              style="background: var(--primary); color: var(--primary-foreground); border-radius: var(--radius);"
+              data-motion="hover-lift"
+              {%- unless product.selected_or_first_available_variant.available -%}
+                disabled
+              {%- endunless -%}
+            >
+              {%- if product.selected_or_first_available_variant.available -%}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                </svg>
+                {{ section.settings.atc_label | default: 'Add to Cart' }}
+              {%- else -%}
+                Sold Out
+              {%- endif -%}
+            </button>
+
+            {%- if section.settings.show_dynamic_checkout -%}
+              {{ form | payment_button }}
+            {%- endif -%}
+          </div>
+        {%- endform -%}
+
+        {%- # Description -%}
+        {%- if product.description != blank and section.settings.show_description -%}
+          <div
+            class="border-t pt-6"
+            style="border-color: var(--border);"
+            data-motion="fade-up"
+            data-scroll="true"
+          >
+            <details class="group" id="product-description-details">
+              <summary
+                class="text-foreground flex cursor-pointer items-center justify-between py-2 text-sm font-semibold"
+                style="list-style: none;"
+              >
+                Description
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  id="description-chevron"
+                  class="transition-transform duration-200"
+                >
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </summary>
+              <div class="prose prose-neutral text-foreground/60 max-w-none pt-4 text-sm">
+                {{ product.description }}
+              </div>
+            </details>
+          </div>
+        {%- endif -%}
+
+        {%- # Trust badges -%}
+        {%- if section.settings.show_trust -%}
+          <div
+            class="flex flex-wrap gap-6 border-t pt-6"
+            style="border-color: var(--border);"
+            data-motion="fade-up"
+            data-scroll="true"
+          >
+            {%- assign trust_items = section.settings.trust_text | split: '|' -%}
+            {%- for item in trust_items -%}
+              <div class="text-foreground/40 flex items-center gap-2 text-xs">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                {{ item | strip }}
+              </div>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // ── Thumbnail switcher ─────────────────────────
+  function selectThumbnail(btn) {
+    document.getElementById('product-main-img').src = btn.dataset.thumbnail;
+    document.getElementById('product-main-img').alt = btn.dataset.thumbnailAlt;
+    document.querySelectorAll('[data-thumbnail]').forEach(b => {
+      b.style.borderColor = 'var(--border)';
+    });
+    btn.style.borderColor = 'var(--foreground)';
+  }
+
+  // ── Quantity stepper ───────────────────────────
+  function updateQty(delta) {
+    const input = document.getElementById('quantity');
+    const newVal = Math.max(1, parseInt(input.value) + delta);
+    input.value = newVal;
+  }
+
+  // ── Variant selector ───────────────────────────
+  function selectVariantOption(btn) {
+    const optionName = btn.closest('[data-option-name]').dataset.optionName;
+    const optionIndex = parseInt(btn.dataset.optionIndex);
+    const value = btn.dataset.optionValue;
+
+    // Update button styles
+    btn.closest('[data-option-name]').querySelectorAll('button').forEach(b => {
+      b.style.borderColor = 'var(--border)';
+      b.style.background = 'transparent';
+      b.style.color = 'var(--foreground)';
+    });
+    btn.style.borderColor = 'var(--foreground)';
+    btn.style.background = 'var(--foreground)';
+    btn.style.color = 'var(--background)';
+
+    // Update selected label
+    const label = document.getElementById('selected-' + optionName.toLowerCase().replace(/\s+/g, '-'));
+    if (label) label.textContent = value;
+
+    // Find matching variant
+    const variants = {{ product.variants | json }};
+    const selectedOptions = [];
+
+    document.querySelectorAll('[data-option-name]').forEach(group => {
+      const active = group.querySelector('button[style*="var(--foreground)"]');
+      if (active) selectedOptions.push(active.dataset.optionValue);
+    });
+
+    const match = variants.find(v =>
+      v.options.every((opt, i) => opt === selectedOptions[i])
+    );
+
+    if (match) {
+      document.getElementById('variant-id').value = match.id;
+      document.getElementById('product-price').textContent = formatMoney(match.price);
+
+      const atcBtn = document.getElementById('add-to-cart');
+      if (match.available) {
+        atcBtn.disabled = false;
+        atcBtn.style.opacity = '1';
+      } else {
+        atcBtn.disabled = true;
+        atcBtn.style.opacity = '0.4';
+      }
+
+      if (match.featured_image) {
+        document.getElementById('product-main-img').src = match.featured_image.src;
+      }
+    }
+  }
+
+  function formatMoney(cents) {
+    return '$' + (cents / 100).toFixed(2);
+  }
+
+  // ── Description accordion ──────────────────────
+  const details = document.getElementById('product-description-details');
+  const chevron = document.getElementById('description-chevron');
+  if (details && chevron) {
+    details.addEventListener('toggle', () => {
+      chevron.style.transform = details.open ? 'rotate(180deg)' : 'rotate(0deg)';
+    });
+  }
+</script>
+
+{% schema %}
+{
+  "name": "Main Product",
+  "tag": "section",
+  "class": "site-main-product-section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show Vendor",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_quantity",
+      "label": "Show Quantity Selector",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dynamic_checkout",
+      "label": "Show Dynamic Checkout Button",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show Description",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "atc_label",
+      "label": "Add to Cart Label",
+      "default": "Add to Cart"
+    },
+    {
+      "type": "header",
+      "content": "Trust Badges"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_trust",
+      "label": "Show Trust Badges",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "trust_text",
+      "label": "Trust Items (separate with |)",
+      "default": "Free Shipping | Easy Returns | Secure Checkout"
+    }
+  ]
+}
+{% endschema %}
